@@ -12,14 +12,17 @@ public class LogServiceImpl implements LogService {
     @Override
     public Boolean addLog(String str) {
 
+        Boolean result = true;
+
         try {
-            for (int i = 0; i < 100; i++) {
-                logger.addQueue(str + i);
+            for (int i = 0; i < 10; i++) {
+                result = logger.addQueue(str + i).get();
+                if (!result) break;
             }
         } catch (Exception e) {
             return false;
         }
 
-        return true;
+        return result;
     }
 }
