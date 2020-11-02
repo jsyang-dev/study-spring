@@ -4,9 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class ReactorTest {
@@ -50,5 +53,30 @@ class ReactorTest {
                 .subscribe(System.out::println);
 
         System.out.println("hello");
+    }
+
+    @Test
+    void reactorTest04() {
+
+        Flux<String> flux = Flux.just("foo", "bar");
+
+        StepVerifier.create(flux)
+                .expectNext("foo")
+                .expectNext("bar")
+                .verifyComplete();
+
+        Flux<User> userFlux = Flux.just(new User("swhite"), new User("jpinkman"));
+
+        StepVerifier.create(userFlux)
+                .assertNext(u -> assertThat(u.getUsername()).isEqualTo("swhite"))
+                .assertNext(u -> assertThat(u.getUsername()).isEqualTo("jpinkman"))
+                .verifyComplete();
+
+        Flux<Long> take10 = Flux.interval(Duration.ofMillis(100))
+                .take(10);
+
+        StepVerifier.create(take10)
+                .expectNextCount(10)
+                .verifyComplete();
     }
 }
