@@ -79,4 +79,14 @@ class ReactorTest {
                 .expectNextCount(10)
                 .verifyComplete();
     }
+
+    @Test
+    void reactorTest05() {
+
+        Mono<User> mono = Mono.just(new User("hello")).map(u -> new User(u.getUsername().toUpperCase()));
+
+        StepVerifier.create(mono)
+                .assertNext(u -> assertThat(u.getUsername()).isEqualTo("HELLO"))
+                .verifyComplete();
+    }
 }
