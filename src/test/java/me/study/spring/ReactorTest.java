@@ -8,8 +8,10 @@ import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static reactor.core.scheduler.Schedulers.parallel;
 
 @SpringBootTest
 class ReactorTest {
@@ -88,5 +90,31 @@ class ReactorTest {
         StepVerifier.create(mono)
                 .assertNext(u -> assertThat(u.getUsername()).isEqualTo("HELLO"))
                 .verifyComplete();
+    }
+
+    @Test
+    void reactorTest06() {
+
+        Flux.just("a", "b", "c", "d", "e", "f", "g", "h", "i")
+                .window(3)
+                .flatMap(l -> l.map(this::toUpperCase).subscribeOn(parallel()))
+                .doOnNext(System.out::println)
+                .blockLast();
+
+        Flux.just("a", "b", "c", "d", "e", "f", "g", "h", "i")
+                .window(3)
+                .flatMapSequential(l -> l.map(this::toUpperCase).subscribeOn(parallel()))
+                .doOnNext(System.out::println)
+                .blockLast();
+    }
+
+    private List<String> toUpperCase(String s) {
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return List.of(s.toUpperCase(), Thread.currentThread().getName());
     }
 }
