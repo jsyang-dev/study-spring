@@ -103,6 +103,12 @@ class ReactorTest {
 
         Flux.just("a", "b", "c", "d", "e", "f", "g", "h", "i")
                 .window(3)
+                .concatMap(l -> l.map(this::toUpperCase).subscribeOn(parallel()))
+                .doOnNext(System.out::println)
+                .blockLast();
+
+        Flux.just("a", "b", "c", "d", "e", "f", "g", "h", "i")
+                .window(3)
                 .flatMapSequential(l -> l.map(this::toUpperCase).subscribeOn(parallel()))
                 .doOnNext(System.out::println)
                 .blockLast();
