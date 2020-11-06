@@ -149,4 +149,24 @@ class ReactorTest {
                 .doOnNext(System.out::println)
                 .blockLast();
     }
+
+    @Test
+    void reactorTest09() {
+
+        Flux<Integer> flux = Flux.range(0, 100)
+                .doOnSubscribe(s -> System.out.println("Start"))
+                .doOnNext(n -> System.out.println(n))
+                .doOnComplete(() -> System.out.println("The end!"))
+                .doOnCancel(() -> System.out.println("Canceled!"))
+                .log();
+
+        StepVerifier.create(flux, 1)
+                .expectNext(0)
+                .thenRequest(1)
+                .expectNext(1)
+                .thenRequest(1)
+                .expectNext(2)
+                .thenCancel()
+                .verify();
+    }
 }
