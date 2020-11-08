@@ -1,6 +1,8 @@
 package me.study.spring;
 
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -168,5 +170,42 @@ class ReactorTest {
                 .expectNext(2)
                 .thenCancel()
                 .verify();
+    }
+
+    @Test
+    void reactorTest10() {
+
+        Flux.range(1, 100)
+                .log()
+                .doOnNext(System.out::println)
+                .subscribe(new Subscriber<>() {
+
+                    private Subscription subscription;
+                    private int count;
+
+                    @Override
+                    public void onSubscribe(Subscription subscription) {
+                        this.subscription = subscription;
+                        this.subscription.request(10);
+                    }
+
+                    @Override
+                    public void onNext(Integer integer) {
+                        count++;
+                        if (count % 10 == 0) {
+                            this.subscription.request(10);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 }
