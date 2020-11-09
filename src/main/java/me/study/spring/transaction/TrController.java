@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TrController {
 
-    private final TrService trService;
+    private final EmployeeService employeeService;
 
     @PostMapping
     public String tr() {
 
-        trService.saveEmployee();
+        employeeService.saveEmployee();
         return "Success";
     }
 }
