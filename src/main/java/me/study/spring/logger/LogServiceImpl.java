@@ -1,4 +1,4 @@
-package me.study.spring;
+package me.study.spring.logger;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

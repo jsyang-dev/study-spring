@@ -1,4 +1,4 @@
-package me.study.spring;
+package me.study.spring.logger;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;

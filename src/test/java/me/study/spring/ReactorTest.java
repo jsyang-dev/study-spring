@@ -157,7 +157,7 @@ class ReactorTest {
 
         Flux<Integer> flux = Flux.range(0, 100)
                 .doOnSubscribe(s -> System.out.println("Start"))
-                .doOnNext(n -> System.out.println(n))
+                .doOnNext(System.out::println)
                 .doOnComplete(() -> System.out.println("The end!"))
                 .doOnCancel(() -> System.out.println("Canceled!"))
                 .log();
@@ -207,5 +207,18 @@ class ReactorTest {
 
                     }
                 });
+    }
+
+    static public class User {
+
+        private String username;
+
+        public User(String username) {
+            this.username = username;
+        }
+
+        public String getUsername() {
+            return username;
+        }
     }
 }
