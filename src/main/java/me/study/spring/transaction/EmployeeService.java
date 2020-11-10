@@ -25,6 +25,10 @@ public class EmployeeService {
         employee.setCreateDate(LocalDateTime.now());
         employeeRepository.save(employee);
 
-        teamService.saveTeam();
+        try {
+            teamService.saveTeam();
+        } catch (RuntimeException e) {
+            log.error("fail");
+        }
     }
 }
