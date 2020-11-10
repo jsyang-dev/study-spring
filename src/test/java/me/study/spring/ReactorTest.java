@@ -209,6 +209,13 @@ class ReactorTest {
                 });
     }
 
+    @Test
+    void reactorTest11() {
+
+        Mono<Object> mono = Mono.error(new RuntimeException());
+        mono.log().onErrorReturn(2).doOnNext(System.out::println).subscribe();
+    }
+
     static public class User {
 
         private String username;
