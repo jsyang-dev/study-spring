@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import org.springframework.boot.test.context.SpringBootTest;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -214,6 +215,19 @@ class ReactorTest {
 
         Mono<Object> mono = Mono.error(new RuntimeException());
         mono.log().onErrorReturn(2).doOnNext(System.out::println).subscribe();
+        mono.log().onErrorResume(e -> Mono.just(2)).doOnNext(System.out::println).subscribe();
+
+        Mono.just("hello").log()
+                .map(s -> {
+                    try {
+                        return  Integer.parseInt(s);
+                    } catch (Exception e) {
+                        throw Exceptions.propagate(e);
+                    }
+                })
+                .onErrorReturn(-1)
+                .doOnNext(System.out::println)
+                .subscribe();
     }
 
     static public class User {
