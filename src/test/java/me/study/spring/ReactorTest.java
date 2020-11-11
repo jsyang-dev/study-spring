@@ -230,6 +230,24 @@ class ReactorTest {
                 .subscribe();
     }
 
+    @Test
+    void reactorTest12() {
+
+        String[] fruits = new String[] {
+                "Apple", "Orange", "Grape", "Banana", "Strawberry"
+        };
+
+        Flux<String> flux = Flux.fromArray(fruits).log();
+
+        StepVerifier.create(flux)
+                .expectNext("Apple")
+                .expectNext("Orange")
+                .expectNext("Grape")
+                .expectNext("Banana")
+                .expectNext("Strawberry")
+                .verifyComplete();
+    }
+
     static public class User {
 
         private String username;
