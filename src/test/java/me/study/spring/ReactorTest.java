@@ -1,5 +1,9 @@
 package me.study.spring;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -12,6 +16,7 @@ import reactor.test.StepVerifier;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static reactor.core.scheduler.Schedulers.parallel;
@@ -246,6 +251,26 @@ class ReactorTest {
                 .expectNext("Banana")
                 .expectNext("Strawberry")
                 .verifyComplete();
+    }
+
+    @Test
+    void reactorTest13() {
+
+        Flowable<Integer> flowable = Flowable.fromPublisher(Flux.just(1));
+        Flux.from(flowable);
+
+        Observable<Integer> observable = Observable.just(1);
+        Flux<Integer> flux = Flux.from(observable.toFlowable(BackpressureStrategy.BUFFER));
+        Observable.fromPublisher(flux);
+
+        Single<Integer> single = Single.just(2);
+        Mono<Integer> mono = Mono.from(single.toFlowable());
+        Single.fromPublisher(mono);
+
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> "hello");
+        future.thenApply(String::toUpperCase);
+        Mono<String> monoFromFuture = Mono.fromFuture(future);
+        monoFromFuture.toFuture();
     }
 
     static public class User {
