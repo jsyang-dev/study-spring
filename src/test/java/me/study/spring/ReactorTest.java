@@ -273,6 +273,34 @@ class ReactorTest {
         monoFromFuture.toFuture();
     }
 
+    @Test
+    void reactorTest14() {
+
+        Flux<Integer> flux1 = Flux.range(1, 10);
+        Flux<Integer> flux2 = Flux.range(11, 20);
+        Flux<Integer> flux3 = Flux.range(21, 30);
+
+        Flux.zip(flux1, flux2, flux3)
+                .log()
+                .map(t -> t.getT1() + t.getT2() + t.getT3())
+                .doOnNext(System.out::println)
+                .subscribe();
+
+        Flux.first(flux1, flux2, flux3)
+                .log()
+                .doOnNext(System.out::println)
+                .subscribe();
+
+        Mono<Integer> mono1 = Mono.just(1);
+        Mono<Integer> mono2 = Mono.just(2);
+        Mono<Integer> mono3 = Mono.just(3);
+
+        Mono.first(mono1, mono2, mono3)
+                .log()
+                .doOnNext(System.out::println)
+                .subscribe();
+    }
+
     static public class User {
 
         private String username;
