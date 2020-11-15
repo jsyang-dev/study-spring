@@ -299,6 +299,17 @@ class ReactorTest {
                 .log()
                 .doOnNext(System.out::println)
                 .subscribe();
+
+        flux1.then()
+                .log()
+                .doOnNext(System.out::println)
+                .subscribe();
+
+        Mono.justOrEmpty(null)
+                .defaultIfEmpty(100)
+                .log()
+                .doOnNext(System.out::println)
+                .subscribe();
     }
 
     static public class User {
