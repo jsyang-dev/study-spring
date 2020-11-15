@@ -312,6 +312,19 @@ class ReactorTest {
                 .subscribe();
     }
 
+    @Test
+    void reactorTest15() {
+
+        Integer num = Mono.just(1).block();
+        System.out.println(num);
+
+        Iterable<Integer> iterable = Flux.range(1, 10)
+                .toIterable();
+        for (Integer integer : iterable) {
+            System.out.println(integer);
+        }
+    }
+
     static public class User {
 
         private String username;
