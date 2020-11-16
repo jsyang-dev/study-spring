@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
@@ -79,8 +80,8 @@ class ReactorTest {
         Flux<User> userFlux = Flux.just(new User("swhite"), new User("jpinkman"));
 
         StepVerifier.create(userFlux)
-                .assertNext(u -> assertThat(u.getUsername()).isEqualTo("swhite"))
-                .assertNext(u -> assertThat(u.getUsername()).isEqualTo("jpinkman"))
+                .assertNext(u -> assertThat(u.getName()).isEqualTo("swhite"))
+                .assertNext(u -> assertThat(u.getName()).isEqualTo("jpinkman"))
                 .verifyComplete();
 
         Flux<Long> take10 = Flux.interval(Duration.ofMillis(100))
@@ -94,10 +95,10 @@ class ReactorTest {
     @Test
     void reactorTest05() {
 
-        Mono<User> mono = Mono.just(new User("hello")).map(u -> new User(u.getUsername().toUpperCase()));
+        Mono<User> mono = Mono.just(new User("hello")).map(u -> new User(u.getName().toUpperCase()));
 
         StepVerifier.create(mono)
-                .assertNext(u -> assertThat(u.getUsername()).isEqualTo("HELLO"))
+                .assertNext(u -> assertThat(u.getName()).isEqualTo("HELLO"))
                 .verifyComplete();
     }
 
@@ -362,16 +363,40 @@ class ReactorTest {
                 .verifyComplete();
     }
 
+    @Test
+    void reactorTest18() {
+
+        UserRepository userRepository = new UserRepository();
+
+        Flux.defer(() -> Flux.fromIterable(userRepository.findAll()))
+                .doOnNext(System.out::println)
+                .subscribeOn(Schedulers.elastic())
+                .subscribe();
+    }
+
     static public class User {
 
-        private String username;
+        private String name;
 
-        public User(String username) {
-            this.username = username;
+        public User(String name) {
+            this.name = name;
         }
 
-        public String getUsername() {
-            return username;
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String toString() {
+            return "User{" +
+                    "name='" + name + '\'' +
+                    '}';
+        }
+    }
+
+    static public class UserRepository {
+        public List<User> findAll() {
+            return List.of(new User("yang"), new User("lee"));
         }
     }
 }
