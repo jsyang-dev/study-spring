@@ -12,6 +12,7 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -225,7 +226,7 @@ class ReactorTest {
         Mono.just("hello").log()
                 .map(s -> {
                     try {
-                        return  Integer.parseInt(s);
+                        return Integer.parseInt(s);
                     } catch (Exception e) {
                         throw Exceptions.propagate(e);
                     }
@@ -238,7 +239,7 @@ class ReactorTest {
     @Test
     void reactorTest12() {
 
-        String[] fruits = new String[] {
+        String[] fruits = new String[]{
                 "Apple", "Orange", "Grape", "Banana", "Strawberry"
         };
 
@@ -323,6 +324,42 @@ class ReactorTest {
         for (Integer integer : iterable) {
             System.out.println(integer);
         }
+    }
+
+    @Test
+    void reactorTest16() {
+
+        Flux<Integer> flux1 = Flux.range(1, 10);
+        Flux<Integer> flux2 = Flux.range(11, 20)
+                .delayElements(Duration.ofMillis(1000));
+
+        Flux<Tuple2<Integer, Integer>> zippedFlux = Flux.zip(flux1, flux2).log();
+
+        StepVerifier.create(zippedFlux)
+                .expectNextMatches(p -> p.getT1() == 1 && p.getT2() == 11)
+                .expectNextMatches(p -> p.getT1() == 2 && p.getT2() == 12)
+                .expectNextMatches(p -> p.getT1() == 3 && p.getT2() == 13)
+                .thenCancel()
+                .verify();
+    }
+
+    @Test
+    void reactorTest17() {
+
+        Flux<Integer> flux = Flux.just("1 2", "3 4", "5 6").log()
+                .flatMap(n -> Mono.just(n)
+                        .map(p -> {
+                            String[] split = p.split("\\s");
+                            return Integer.parseInt(split[0]) + Integer.parseInt(split[1]);
+                        })
+                        .subscribeOn(parallel())
+                );
+
+        StepVerifier.create(flux)
+                .expectNextMatches(p -> p == 3)
+                .expectNextMatches(p -> p == 7)
+                .expectNextMatches(p -> p == 11)
+                .verifyComplete();
     }
 
     static public class User {
