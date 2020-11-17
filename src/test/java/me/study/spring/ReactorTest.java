@@ -374,6 +374,28 @@ class ReactorTest {
                 .subscribe();
     }
 
+    @Test
+    void reactorTest19() {
+
+        Flux<Integer> flux = Flux.range(1, 9).log();
+        Flux<List<Integer>> bufferedFlux = flux.buffer(3);
+
+        StepVerifier.create(bufferedFlux)
+                .expectNext(Arrays.asList(1, 2, 3))
+                .expectNext(Arrays.asList(4, 5, 6))
+                .expectNext(Arrays.asList(7, 8, 9))
+                .verifyComplete();
+
+        Flux.range(1, 9)
+                .buffer(3)
+                .flatMap(x ->
+                        Flux.fromIterable(x)
+                                .map(y -> y + 10)
+                                .subscribeOn(Schedulers.parallel())
+                                .log()
+                ).subscribe();
+    }
+
     static public class User {
 
         private String name;
