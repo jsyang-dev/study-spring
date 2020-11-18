@@ -18,6 +18,7 @@ import reactor.util.function.Tuple2;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -394,6 +395,37 @@ class ReactorTest {
                                 .subscribeOn(Schedulers.parallel())
                                 .log()
                 ).subscribe();
+    }
+
+    @Test
+    void reactorTest20() {
+
+        Flux<Integer> flux = Flux.range(1, 9).log();
+
+        Mono<List<Integer>> mono = flux.collectList();
+        StepVerifier.create(mono)
+                .expectNext(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9))
+                .verifyComplete();
+
+        Flux<String> animalFlux = Flux.just("cat", "dog", "eagle", "cow", "donkey").log();
+
+        Mono<Map<Character, String>> animalMapMono = animalFlux.collectMap(a -> a.charAt(0)).log();
+        StepVerifier.create(animalMapMono)
+                .expectNextMatches(map -> map.size() == 3
+                        && map.get('c').equals("cow")
+                        && map.get('d').equals("donkey")
+                        && map.get('e').equals("eagle"))
+                .verifyComplete();
+
+        Mono<Boolean> allMono = animalFlux.all(a -> a.contains("o"));
+        StepVerifier.create(allMono)
+                .expectNext(false)
+                .verifyComplete();
+
+        Mono<Boolean> anyMono = animalFlux.any(a -> a.contains("o"));
+        StepVerifier.create(anyMono)
+                .expectNext(true)
+                .verifyComplete();
     }
 
     static public class User {
