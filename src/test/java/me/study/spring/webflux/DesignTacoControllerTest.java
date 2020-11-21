@@ -2,10 +2,12 @@ package me.study.spring.webflux;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import static reactor.core.publisher.Mono.when;
+import static org.mockito.Mockito.when;
 
 class DesignTacoControllerTest {
 
@@ -34,6 +36,27 @@ class DesignTacoControllerTest {
                 .jsonPath("$[1].name").isEqualTo(tacos[1].getName())
                 .jsonPath("$[2].id").isEqualTo(tacos[2].getId().toString())
                 .jsonPath("$[2].name").isEqualTo(tacos[2].getName());
+    }
+
+    @Test
+    void shouldSaveATaco() {
+
+        TacoRepository tacoRepository = Mockito.mock(TacoRepository.class);
+        Mono<Taco> unsavedTaco = Mono.just(testTaco(1L));
+        Taco savedTaco = testTaco(1L);
+        Flux<Taco> savedTacoFlux = Flux.just(savedTaco);
+
+        when(tacoRepository.saveAll(unsavedTaco)).thenReturn(savedTacoFlux);
+
+        WebTestClient testClient = WebTestClient.bindToController(new DesignTacoController(tacoRepository)).build();
+        testClient.post()
+                .uri("/design")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(unsavedTaco, Taco.class)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(Taco.class)
+                .isEqualTo(savedTaco);
     }
 
     private Taco testTaco(Long number) {
