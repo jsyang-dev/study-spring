@@ -2,8 +2,10 @@ package me.study.spring.webflux;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -57,6 +59,17 @@ class DesignTacoControllerTest {
                 .expectStatus().isCreated()
                 .expectBody(Taco.class)
                 .isEqualTo(savedTaco);
+    }
+
+    @Test
+    void webClientTest01() {
+
+        Mono<Taco> mono = WebClient.create("http://localhost:8080")
+                .get()
+                .uri("/design/{id}", 0L)
+                .retrieve()
+                .onStatus(HttpStatus::is4xxClientError, response -> Mono.just(new RuntimeException()))
+                .bodyToMono(Taco.class);
     }
 
     private Taco testTaco(Long number) {
