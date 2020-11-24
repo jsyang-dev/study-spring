@@ -72,6 +72,22 @@ class DesignTacoControllerTest {
                 .bodyToMono(Taco.class);
     }
 
+    @Test
+    void webClientTest02() {
+
+        Mono<Taco> mono = WebClient.create("http://localhost:8080")
+                .get()
+                .uri("/design/{id}", 0L)
+                .exchange()
+                .flatMap(cr -> {
+                    if (cr.headers().header("TEST").contains(true)) {
+                        return Mono.empty();
+                    }
+                    return Mono.just(cr);
+                })
+                .flatMap(cr -> cr.bodyToMono(Taco.class));
+    }
+
     private Taco testTaco(Long number) {
 
         Taco taco = new Taco();
